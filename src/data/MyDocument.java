@@ -106,8 +106,11 @@ public class MyDocument {
 		doc.add(new TextField("institute", institutes, Field.Store.YES));
 		doc.add(new TextField("abstract", content, Field.Store.YES));
 		doc.add(new IntField("pmid", Integer.parseInt(pmid), Field.Store.YES));
-		if(pmcid != null)
+		if(pmcid == null)
+			doc.add(new IntField("pmcid", -1, Field.Store.YES));
+		else
 			doc.add(new IntField("pmcid", Integer.parseInt(pmcid), Field.Store.YES));
+		
 		
 		return doc;
 	}

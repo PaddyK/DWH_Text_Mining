@@ -1,3 +1,4 @@
+package main;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -32,7 +33,7 @@ public class MedDataSearcher {
 			System.exit(0);
 		}
 
-		String index = "index";
+		String index = "G:\\Documents\\DHBW\\6Semester\\Data_Warehouse\\index\\";
 		String[] field = { "abstract" };
 		String queries = null;
 		int repeat = 0;
@@ -84,7 +85,7 @@ public class MedDataSearcher {
 
 		IndexReader reader = DirectoryReader.open(FSDirectory.open(new File(index)));
 		IndexSearcher searcher = new IndexSearcher(reader);
-		Analyzer analyzer = new WhitespaceAnalyzer(Version.LUCENE_47);
+		Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_47);
 
 		BufferedReader in;
 		if (queries != null) {

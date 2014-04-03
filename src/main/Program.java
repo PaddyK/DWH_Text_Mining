@@ -2,6 +2,7 @@ package main;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.io.File;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -34,8 +35,11 @@ public class Program {
 			iwConfig = new IndexWriterConfig(Version.LUCENE_47, analyzer);
 			iwriter = new IndexWriter(dir, iwConfig);
 			reader = new FSReader("G:\\Documents\\DHBW\\6Semester\\Data_Warehouse\\pubmed_result-HumanGene-072012.txt");
+			System.out.println("Number of docs according to reader : " + iwriter.numDocs());
+			Date date = new Date();
 			reader.extractDocuments(iwriter);
 			System.out.println("Number of docs according to reader : " + iwriter.numDocs());
+			System.out.println("Time taken: "+ (new Date().getTime() - date.getTime())/1000);
 		}
 		catch(IOException e) {
 			e.printStackTrace();

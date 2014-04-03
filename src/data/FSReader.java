@@ -107,7 +107,6 @@ public class FSReader {
 						if(document.isContentEmpty() && document.isInstituteEmpty())
 							if(!isInstitute(document.getInstitutes(), keywords))
 								document.setContent(document.getInstitutes());
-						System.out.println(count);
 						iwriter.addDocument(document.getDocument());
 						break;
 					}
