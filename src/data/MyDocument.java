@@ -100,11 +100,11 @@ public class MyDocument {
 	
 	public Document getDocument() {
 		Document doc = new Document();
-		doc.add(new StringField("firstline", firstline, Field.Store.YES));
-		doc.add(new StringField("author", author, Field.Store.YES));
-		doc.add(new StringField("title", title, Field.Store.YES));
-		doc.add(new StringField("institute", institutes, Field.Store.YES));
-		doc.add(new StringField("abstract", content, Field.Store.YES));
+		doc.add(new TextField("firstline", firstline, Field.Store.YES));
+		doc.add(new TextField("author", author, Field.Store.YES));
+		doc.add(new TextField("title", title, Field.Store.YES));
+		doc.add(new TextField("institute", institutes, Field.Store.YES));
+		doc.add(new TextField("abstract", content, Field.Store.YES));
 		doc.add(new IntField("pmid", Integer.parseInt(pmid), Field.Store.YES));
 		if(pmcid != null)
 			doc.add(new IntField("pmcid", Integer.parseInt(pmcid), Field.Store.YES));
