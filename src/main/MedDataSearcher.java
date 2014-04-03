@@ -1,6 +1,5 @@
 package main;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -18,16 +17,13 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.Date;
 
-/**
- * @author johniv
- * @version 03.04.2014
- */
 public class MedDataSearcher {
 
 	private MedDataSearcher() {}
 
 	public static void main(String[] args) throws Exception {
 		String usage = "Usage:\tSearchFiles [-index dir] [-fields f[,f]] [-repeat n] [-queries file] [-query string] [-raw] [-paging hitsPerPage]";
+
 		if (args.length > 0 && ("-h".equals(args[0]) || "-help".equals(args[0]))) {
 			System.out.println(usage);
 			System.exit(0);
@@ -45,26 +41,31 @@ public class MedDataSearcher {
 			switch (args[i]) {
 				case "-index":
 					index = args[i + 1];
+
 					i++;
 					break;
 
 				case "-field":
 					field = args[i + 1].split(",");
+
 					i++;
 					break;
 
 				case "-queries":
 					queries = args[i + 1];
+
 					i++;
 					break;
 
 				case "-query":
 					queryString = args[i + 1];
+
 					i++;
 					break;
 
 				case "-repeat":
 					repeat = Integer.parseInt(args[i + 1]);
+
 					i++;
 					break;
 
@@ -74,10 +75,12 @@ public class MedDataSearcher {
 
 				case "-paging":
 					hitsPerPage = Integer.parseInt(args[i + 1]);
+
 					if (hitsPerPage <= 0) {
 						System.err.println("There must be at least 1 hit per page.");
 						System.exit(1);
 					}
+
 					i++;
 					break;
 			}
@@ -93,71 +96,61 @@ public class MedDataSearcher {
 		} else {
 			in = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
 		}
+
 		QueryParser parser = new MultiFieldQueryParser(Version.LUCENE_47, field, analyzer);
 		while (true) {
-			if (queries == null && queryString == null) {
-				// prompt the user
+			if (queries == null && queryString == null)
 				System.out.println("Enter query: ");
-			}
 
 			String line = queryString != null ? queryString : in.readLine();
 
-			if (line == null || line.length() == -1) {
+			if (line == null || line.length() == -1)
 				break;
-			}
 
 			line = line.trim();
-			if (line.length() == 0) {
+			if (line.length() == 0)
 				break;
-			}
 
 			Query query = parser.parse(line);
-			System.out.println("Searching for: " + query.toString(Arrays.toString(field)));
+			System.out.println("Searching for: \'" + query.toString(Arrays.toString(field)) + "\'");
 
 			if (repeat > 0) {
-				// repeat & time as benchmark
 				Date start = new Date();
-				for (int i = 0; i < repeat; i++) {
+
+				for (int i = 0; i < repeat; i++)
 					searcher.search(query, null, 100);
-				}
+
 				Date end = new Date();
 				System.out.println("Time: "+(end.getTime()-start.getTime())+"ms");
 			}
 
 			doPagingSearch(in, searcher, query, hitsPerPage, raw, queries == null && queryString == null);
 
-			if (queryString != null) {
+			if (queryString != null)
 				break;
-			}
 		}
+
 		reader.close();
 	}
 
-	/**
-	 * This demonstrates a typical paging search scenario, where the search engine presents
-	 * pages of size n to the user. The user can then go to the next page if interested in
-	 * the next hits.
-	 *
-	 * When the query is executed for the first time, then only enough results are collected
-	 * to fill 5 result pages. If the user wants to page beyond this limit, then the query
-	 * is executed another time and all hits are collected.
-	 *
-	 */
 	public static void doPagingSearch(BufferedReader in, IndexSearcher searcher, Query query, int hitsPerPage, boolean raw, boolean interactive) throws IOException {
-		// Collect enough docs to show 5 pages
 		TopDocs results = searcher.search(query, 5 * hitsPerPage);
 		ScoreDoc[] hits = results.scoreDocs;
 
 		int numTotalHits = results.totalHits;
-		System.out.println(numTotalHits + " total matching documents");
+		System.out.println(numTotalHits + " total matching documents.");
 
 		int start = 0;
 		int end = Math.min(numTotalHits, hitsPerPage);
 
+		System.out.println();
+		System.out.println("------------------------");
+		System.out.println();
+
 		while (true) {
 			if (end > hits.length) {
 				System.out.println("Only results 1 - " + hits.length +" of " + numTotalHits + " total matching documents collected.");
-				System.out.println("Collect more (y/n)?");
+				System.out.println("Collect more (Y/N)?");
 				String line = in.readLine();
 				if (line.length() == 0 || line.charAt(0) == 'n') {
 					break;
@@ -183,38 +176,48 @@ public class MedDataSearcher {
 				String institute = doc.getField("institute").stringValue();
 				String abstracta = doc.getField("abstract").stringValue();
 				int pmid = doc.getField("pmid").numericValue().intValue();
-//				int pmcid = doc.getField("pmcid").numericValue().intValue();
+				int pmcid = doc.getField("pmcid").numericValue().intValue();
+
+				System.out.println("\tPMID:\t\t" + pmid);
+
+				if (pmcid != -1)
+					System.out.println("\tPMCID:\t\t" + pmcid);
+
+				if (title != null)
+					System.out.println("\tTitle:\t\t" + title);
+
+				if (author != null)
+					System.out.println("\tAuthor:\t\t" + author);
+
+				if (institute != null)
+					System.out.println("\tInstitute:\t" + institute);
 
 				if (firstline != null)
-					System.out.println("   First line: " + firstline);
-				if (author != null)
-					System.out.println("   Author: " + author);
-				if (title != null)
-					System.out.println("   Title: " + title);
-				if (institute != null)
-					System.out.println("   Institute: " + institute);
-				if (abstracta != null)
-					System.out.println("   Abstract: " + abstracta);
+					System.out.println("\tFirst line:\t" + firstline);
 
-				System.out.println("   PMID: " + pmid);
-//				System.out.println("   PMCID: " + pmcid);
+//				if (abstracta != null)
+//					System.out.println("\tAbstract:\t" + abstracta);
+
+				System.out.println();
+				System.out.println("------------------------");
+				System.out.println();
 
 			}
 
-			if (!interactive || end == 0) {
+			if (!interactive || end == 0)
 				break;
-			}
 
 			if (numTotalHits >= end) {
 				boolean quit = false;
+
 				while (true) {
 					System.out.print("Press ");
-					if (start - hitsPerPage >= 0) {
+					if (start - hitsPerPage >= 0)
 						System.out.print("(p)revious page, ");
-					}
-					if (start + hitsPerPage < numTotalHits) {
+
+					if (start + hitsPerPage < numTotalHits)
 						System.out.print("(n)ext page, ");
-					}
+
 					System.out.println("(q)uit or enter number to jump to a page.");
 
 					String line = in.readLine();
@@ -222,6 +225,7 @@ public class MedDataSearcher {
 						quit = true;
 						break;
 					}
+
 					if (line.charAt(0) == 'p') {
 						start = Math.max(0, start - hitsPerPage);
 						break;
@@ -240,9 +244,13 @@ public class MedDataSearcher {
 						}
 					}
 				}
+
 				if (quit) break;
 				end = Math.min(numTotalHits, start + hitsPerPage);
 			}
+
 		}
+
 	}
+
 }
