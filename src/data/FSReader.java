@@ -60,7 +60,7 @@ public class FSReader {
 		
 		try {
 			reader = new BufferedReader(new InputStreamReader(new DataInputStream(new FileInputStream(path))));
-			while((line = reader.readLine()) != null && count < 100) {
+			while((line = reader.readLine()) != null && count < 10000) {
 				lineCount++;
 				
 				matcher = beginPattern.matcher(line);
